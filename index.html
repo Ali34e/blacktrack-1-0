@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BLACKTRACK Mini App</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f9f9f9;
+      padding: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    .button {
+      padding: 10px 20px;
+      margin-top: 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome to BLACKTRACK</h1>
+  <div id="auth-section">
+    <button id="startButton" class="button">Start</button>
+    <button id="pointsButton" class="button">Check Points</button>
+    <p id="user-info"></p>
+    <p id="points"></p>
+  </div>
+
+  <script>
+    // Firebase configuration (use your own Firebase credentials here)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDKb-jjifIT2K_RU25TznPfek0r6LDceek",
+      authDomain: "blacktrack-13a44.firebaseapp.com",
+      projectId: "blacktrack-13a44",
+      storageBucket: "blacktrack-13a44.firebasestorage.app",
+      messagingSenderId: "491023181367",
+      appId: "1:491023181367:web:a1df9ec3c8376ba56a41b2"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Start button event
+    document.getElementById('startButton').addEventListener('click', function() {
+      fetch('https://your-web-app-url.com/register', {
+        method: 'POST',
+        body: JSON.stringify({
+          user_id: 'user_id_from_telegram', // Replace with actual user data
+          first_name: 'first_name_from_telegram',
+          last_name: 'last_name_from_telegram',
+          phone_number: 'phone_number_from_telegram' // Optional
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('user-info').innerText = `Welcome ${data.first_name}! You have been registered.`;
+        // Add user to Firestore or your database
+        db.collection('users').add({
+          user_id: data.user_id,
+          points: 0
+        });
+      })
+      .catch(error => console.error('Error:', error));
+    });
+
+    // Points button event
+    document.getElementById('pointsButton').addEventListener('click', function() {
+      // Retrieve points from Firestore or your database
+      const userId = 'user_id_from_telegram'; // Use actual user ID
+      db.collection('users').where("user_id", "==", userId).get()
+        .then(snapshot => {
+          if (!snapshot.empty) {
+            const userDoc = snapshot.docs[0];
+            const userPoints = userDoc.data().points;
+            document.getElementById('points').innerText = `You have ${userPoints} points today!`;
+          }
+        });
+    });
+  </script>
+</body>
+</html>
